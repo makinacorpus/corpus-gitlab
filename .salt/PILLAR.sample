@@ -35,16 +35,18 @@ makina-projects.projectname:
              'config/resque.yml': {},
              'config/gitlab.yml': {},
              'config/database.yml': {},
-             '/etc/logrotate.d/gitlab': {},
-             '/etc/default/gitlab': {},
+             '/etc/logrotate.d/gitlab': {'user': 'root',
+                                         'group': 'root'},
+             '/etc/default/gitlab': {'user': 'root',
+                                     'group': 'root'},
     }.items() %}
       "{{i}}":
         {% if i.startswith('/') %}
         target: {{i}}
         {% endif %}
         mode: {{ fdata.get('mode', '640') }}
-        user: "{user}"
-        group: "{group}"
+        {% if fdata.get('user')%}user:  {{fdata.user}}{%endif%}
+        {% if fdata.get('group')%}group: {{fdata.group}}{%endif%}
       {% endfor%}
     domain: "{fqdn}"
     root_password: "{{salt['mc_utils.generate_stored_password']('gitlabroot')}}"
@@ -60,8 +62,8 @@ makina-projects.projectname:
     user: "git"
     version: "8-12-stable"
     rversion: "2.3.1"
-    shell_version: "3.4.0"
-    workhorse_version: "v0.8.1"
+    shell_version: "3.6.1"
+    workhorse_version: "v0.8.4"
     log_level: Logger::ERROR
     email_from: "git@{fqdn}"
     smtp_address: 127.0.0.1

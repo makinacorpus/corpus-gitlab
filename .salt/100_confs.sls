@@ -25,6 +25,7 @@
   mc_git.latest:
     - name: "{{data.url}}"
     - force_reset: true
+    - force_fetch: true
     - target: "{{data.dir}}"
     - user: "{{data.user}}"
     - rev: "{{data.version}}"
