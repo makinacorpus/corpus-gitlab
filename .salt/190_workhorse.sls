@@ -16,13 +16,13 @@
     - user: "{{data.user}}"
     - rev: "{{data.workhorse_version}}"
     - require:
-      - cmd: {{cfg.name}}-download-wh 
+      - cmd: {{cfg.name}}-download-wh
 
 {{cfg.name}}-download-wh-cmmi:
-  cmd.run: 
+  cmd.run:
     - name: |
-        make 
+        make
     - cwd: "{{data.workhorse_dir}}"
     - use_vt: true
     - require:
-      - mc_git: {{cfg.name}}-download-wh  
+      - mc_git: {{cfg.name}}-download-wh
