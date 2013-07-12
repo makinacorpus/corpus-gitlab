@@ -76,6 +76,10 @@ prepreqs-{{cfg.name}}:
       - imagemagick
       - ruby-rmagick
       - nodejs
+      # syntax hilight
+      - python-docutils
+      - python3-docutils
+
 {% set dirs = [
   (cfg.data.home, '2771'),
   (cfg.data.home + '/.ssh', '2751'),
