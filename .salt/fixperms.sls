@@ -20,7 +20,6 @@
               gpasswd -a $i $datagroup 2>/dev/null || /bin/true
             done
             # be sure to remove POSIX acls support
-            setfacl -P -R -b -k "{{cfg.project_dir}}" "{{data.home}}"
             "{{locs.resetperms}}" -q --no-acls\
               --user root --group "$datagroup" \
               --dmode '0770' --fmode '0770' \
@@ -72,12 +71,12 @@
               --paths "{{cfg.project_dir}}/global-reset-perms.sh" \
               --paths "{{cfg.project_root}}"/.. \
               --paths "{{cfg.project_root}}"/../..;
-            "{{locs.resetperms}}"\
-             --dmode '0700' --fmode '0700' \
-             --paths "{{cfg.data.home}}/.ssh";
             {% if data.sshgroup %}
             gpasswd -a {{data.user}} {{data.sshgroup}}
             {% endif %}
+            chown -Rf {{data.user}} "{{cfg.data.home}}/.ssh"
+            chmod -R g-s "{{cfg.data.home}}/.ssh" 
+            chmod -R 0700 "{{cfg.data.home}}/.ssh" 
   cmd.run:
     - name: {{cfg.project_dir}}/global-reset-perms.sh
     - cwd: {{cfg.project_root}}
