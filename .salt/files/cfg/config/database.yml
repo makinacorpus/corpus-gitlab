@@ -1,0 +1,21 @@
+{% set cfg = salt['mc_project.get_configuration'](project) %}
+# Default setup is given for MySQL with ruby1.9. If you're running Redmine
+# with MySQL and ruby1.8, replace the adapter name with `mysql`.
+# Examples for PostgreSQL, SQLite3 and SQL Server can be found at the end.
+# Line indentation must be 2 spaces (no tabs).
+{% macro envdb(env) %}
+{{env}}:
+  adapter: "{{cfg.data.db_adapter}}"
+  database: "{{cfg.data.db_name}}"
+  host: "{{cfg.data.db_host}}"
+  port: "{{cfg.data.db_port}}"
+  username: "{{cfg.data.db_user}}"
+  password: "{{cfg.data.db_password}}"
+  encoding: "{{cfg.data.db_encoding}}"
+{% endmacro %}
+
+{{envdb('development')}}
+
+{{envdb('production')}}
+
+{{envdb('test')}}

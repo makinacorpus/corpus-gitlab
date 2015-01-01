@@ -1,0 +1,105 @@
+#
+# This file contains default values which are used
+# by the salt states deploying your project.
+# you may copy them to your relevant PILLAR file
+# before editing them.
+# If you need to add variables, this is where to begin.
+# Please keep defaults in there, but real passwords
+# must be putted inside pillar
+#
+# replace project_name in your pillar by
+# the current projectname
+# you can also merge parts of this file
+# with the relevant pillar
+#
+# think that dicts are updated/merged with default
+# but lists are overidden
+#
+
+
+# copy and adapt this in the real pillar to allow maxsize for
+# attachements
+# makina-states.services.http.nginx.client_max_body_size: 700M
+
+
+makina-projects.projectname:
+  data:
+    domain: "{fqdn}"
+    root_password: "{{salt['mc_utils.generate_stored_password']('gitlabroot')}}"
+    nginx_upstreams: salt://makina-projects/{name}/files/nginx.upstreams.conf
+    nginx_vhost: salt://makina-projects/{name}/files/nginx.content.conf
+    url: https://gitlab.com/gitlab-org/gitlab-ce.git
+    home: "{data_root}/gitlab"
+    dir: "{home}/gitlab"
+    repos_path: "{home}/repositories"
+    satellites_dir: "{home}/gitlab-satellites"
+    user: "git"
+    group: "www-data"
+    rversion: "2.1.5"
+    log_level: Logger::ERROR
+    version: 7-5-stable
+    smtp_address: 127.0.0.1
+    smtp_tls: true
+    smtp_noauth: False
+    smtp_port: 25
+    email_from: "git@{fqdn}"
+    smtp_domain: null
+    smtp_user: foo.com
+    smtp_password: foo.com
+    files: "{data_root}/files"
+    redis_host: localhost
+    redis_port: 6379
+    redis_password: ""
+    db_gem: postgresql
+    db_adapter: postgresql
+    db_name: gitlab_production
+    db_user: gitlab_production
+    db_password: gitlab
+    db_encoding: unicode
+    db_host: localhost
+    db_port: 5432
+    use_ldap: false
+    # unicorn settings
+    host: 127.0.0.1
+    port: 8080
+    worker_timeout: 600
+    worker_processes: 2
+    # gitlab.yaml settings
+    tz: "Europe/Paris"
+    default_theme: 2
+    project_limit: 100000000
+    default_can_create_group: "true"
+    username_changing_enabled: "true"
+    project_issues: "true"
+    project_merge_requests: "true"
+    project_wiki: "true"
+    project_snippets: "true"
+    project_visibility: "private"
+    webhook_timeout: 10
+    ldap_host: ""
+    ldap_port: "389"
+    ldap_method: "tls"
+    ldap_dn: "dc=foo,dc=org"
+    ldap_uid: "uid"
+    ldap_binddn: ""
+    ldap_bindpw: ""
+    allow_username_or_email_login: "true"
+    ldap_base: 'ou=People,{ldap_dn}'
+    active_directory: "false"
+    git_max_size: 20971520
+    signup_enabled: "true"
+    signin_enabled: "true"
+
+  env_defaults:
+    dev:
+      opt: value2
+  os_defaults:
+    Ubuntu:
+# os  filter
+      opt: value1
+    Debian:
+# os familly filter
+      opt1: value11
+
+
+# vim:set ft=yaml sts=2 ts=2:

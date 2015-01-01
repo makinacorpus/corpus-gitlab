@@ -1,0 +1,3 @@
+{% set cfg = salt['mc_project.get_configuration'](project) %}
+{% set data = cfg.data %}
+production: "redis://:{{data.redis_password}}@{{data.redis_host}}:{{data.redis_port}}"
