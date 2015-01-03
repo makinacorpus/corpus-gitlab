@@ -4,6 +4,7 @@
 {% set project_root=cfg.project_root%}
 include:
   - makina-states.services.http.nginx
+  - makina-states.services.db.redis
   - makina-states.localsettings.rvm
   - makina-states.localsettings.users.hooks
 
