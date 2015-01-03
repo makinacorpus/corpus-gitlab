@@ -36,6 +36,7 @@ makina-projects.projectname:
     user: "git"
     group: "www-data"
     rversion: "2.1.5"
+    shellversion: "2.4.0"
     log_level: Logger::ERROR
     version: 7-5-stable
     smtp_address: 127.0.0.1
@@ -50,6 +51,7 @@ makina-projects.projectname:
     redis_host: localhost
     redis_port: 6379
     redis_password: ""
+    redis_url: "redis://:{redis_password}@{redis_host}:{redis_port}/"
     db_gem: postgresql
     db_adapter: postgresql
     db_name: gitlab_production

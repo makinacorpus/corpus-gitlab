@@ -21,3 +21,18 @@
     - defaults:
         project: {{cfg.name}}
 {% endfor %}
+{% for i in [
+             '/etc/logrotate.d/gitlab',
+            ] %}
+{{cfg.name}}-{{i}}:
+  file.managed:
+    - makedirs: true
+    - source: salt://makina-projects/{{cfg.name}}/files/cfg/{{i}}
+    - name:  {{i}}
+    - template: jinja
+    - mode: 770
+    - user: "root"
+    - group: "root"
+    - defaults:
+        project: {{cfg.name}}
+{% endfor %}

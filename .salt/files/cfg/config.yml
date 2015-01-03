@@ -1,0 +1,19 @@
+---
+{% set cfg = salt['mc_project.get_configuration'](project) %}
+{% set data = cfg.data %}
+user: "{{data.user}}"
+gitlab_url: "https://{{data.domain}}/"
+http_settings:
+  self_signed_cert: false
+repos_path: "{{data.repos_path}}"
+auth_file: "{{data.home}}/.ssh/authorized_keys"
+redis:
+  bin: "/usr/bin/redis-cli"
+  namespace: resque:gitlab
+  host: "{{data.redis_host}}"
+  port: {{data.redis_port}}
+
+  pass: "{{data.redis_password}}"
+
+log_level: INFO
+audit_usernames: false

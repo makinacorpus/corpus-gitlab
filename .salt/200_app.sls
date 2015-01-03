@@ -76,49 +76,44 @@
      data.dir, data.db_gem, data.worker_processes),
  state=cfg.name+'-install-gitlab')}}
     - cwd: {{data.dir}}
+    - unless: test -e "{{data.dir}}/gems/ruby/2.1.0/gems/pg-0.15.1"
     - user: {{data.user}}
     - require:
       - cmd: {{cfg.name+'-bundler'}}
 
 {{project_rvm(
- 'rake gitlab:setup RAILS_ENV=production GITLAB_ROOT_PASSWORD={2} && touch {0}/setup_done'.format(
-     data.dir, data.db_gem, data.root_password),
+ 'rake gitlab:setup force=yes RAILS_ENV=production GITLAB_ROOT_PASSWORD={2} && touch {0}/skip_setup'.format(
+     data.home, data.db_gem, data.root_password),
  state=cfg.name+'-setup-gitlab')}}
-    - onlyif: test ! -e {{data.dir}}/setup_done
+    - onlyif: test ! -e {{data.home}}/skip_setup
     - cwd: {{data.dir}}
     - user: {{data.user}}
     - require:
       - cmd: {{cfg.name+'-install-gitlab'}}
-{#
+
 {{project_rvm(
- 'rake generate_secret_token'.format(cfg.data_root),
- state=cfg.name+'-install-session')}}
+ 'rake gitlab:shell:install[v{3}] REDIS_URL="{4}" RAILS_ENV=production && touch {0}/skip_shell'.format(
+     data.home, data.db_gem, data.root_password,
+     data.shellversion, data.redis_url),
+ state=cfg.name+'-setup-shell')}}
+    - onlyif: test ! -e {{data.home}}/skip_shell
     - cwd: {{data.dir}}
     - user: {{data.user}}
     - require:
-      - cmd: {{cfg.name+'-install-redmine'}}
+      - cmd: {{cfg.name+'-setup-gitlab'}}
 
-{{project_rvm(
- 'rake db:migrate --trace'.format(cfg.data_root), state=cfg.name+'-migrate')}}
-    - cwd: {{cfg.project_root}}/redmine
-    - user: {{data.user}}
+{% for i in ['config.yml'] %}
+{{cfg.name}}-{{i}}:
+  file.managed:
+    - makedirs: true
+    - source: salt://makina-projects/{{cfg.name}}/files/cfg/{{i}}
+    - name:  {{data.home}}/gitlab-shell/{{i}}
+    - template: jinja
+    - mode: 770
+    - user: "{{cfg.user}}"
+    - group: "root"
+    - defaults:
+        project: {{cfg.name}}
     - require:
-      - cmd: {{cfg.name+'-install-session'}}
-
-
-{{project_rvm(
- 'rake redmine:plugins:migrate --trace'.format(cfg.data_root), state=cfg.name+'-plugins-migrate')}}
-    - cwd: {{cfg.project_root}}/redmine
-    - user: {{data.user}}
-    - require:
-      - cmd: {{cfg.name+'-migrate'}}
-
-
-{{project_rvm(
- 'rake tmp:cache:clear --trace'
- '&& rake tmp:sessions:clear --trace'.format(cfg.data_root), state=cfg.name+'-clear')}}
-    - cwd: {{cfg.project_root}}/redmine
-    - user: {{data.user}}
-    - require:
-       - cmd: {{cfg.name+'-plugins-migrate'}}
-#}
+      - cmd: {{cfg.name+'-setup-shell'}}
+{% endfor %}

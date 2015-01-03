@@ -1,0 +1,22 @@
+{% set cfg = salt['mc_project.get_configuration'](project) %}
+{% set data = cfg.data %}
+# GitLab logrotate settings
+# based on: http://stackoverflow.com/a/4883967
+
+{{data.dir}}/log/*.log {
+    daily
+    missingok
+    rotate 90
+    compress
+    notifempty
+    copytruncate
+}
+
+{{data.home}}/gitlab-shell/gitlab-shell.log {
+    daily
+    missingok
+    rotate 90
+    compress
+    notifempty
+    copytruncate
+}
