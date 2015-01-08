@@ -12,6 +12,8 @@
       - RAILS_ENV: production
 {% endmacro%}
 {% for cmd in [
+ ('bundle install -j{5} --path {0}/gems '
+  '--deployment --without development test {1} aws'),
  'rake db:migrate        RAILS_ENV=production',
  'rake assets:clean      RAILS_ENV=production',
  'rake assets:precompile RAILS_ENV=production',
@@ -20,7 +22,7 @@
 {{project_rvm(
  cmd.format(
      data.home, data.db_gem, data.root_password,
-     data.shellversion, data.redis_url),
+     data.shellversion, data.redis_url, data.worker_processes),
  state=cfg.name+'-{0}'.format(cmd))}}
     - cwd: {{data.dir}}
     - user: {{data.user}}

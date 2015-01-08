@@ -38,7 +38,7 @@ makina-projects.projectname:
     rversion: "2.1.5"
     shellversion: "2.4.0"
     log_level: Logger::ERROR
-    version: 7-5-stable
+    version: 7-6-stable
     smtp_address: 127.0.0.1
     smtp_tls: true
     smtp_noauth: False
@@ -91,6 +91,7 @@ makina-projects.projectname:
     git_max_size: 20971520
     signup_enabled: "true"
     signin_enabled: "true"
+    sshgroup: sshusers
 
   env_defaults:
     dev:
