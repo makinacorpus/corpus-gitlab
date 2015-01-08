@@ -117,3 +117,12 @@
     - require:
       - cmd: {{cfg.name+'-setup-shell'}}
 {% endfor %}
+
+
+{{cfg.name}}-hooks:
+  cmd.run:
+    - name: "{{data.home}}/wrap_hooks.sh"
+    - cwd: {{data.home}}
+    - user: {{data.user}}
+    - require:
+      - cmd: {{cfg.name+'-setup-gitlab'}}

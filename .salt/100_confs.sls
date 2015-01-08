@@ -84,6 +84,44 @@
     - user: "root"
     - group: "root"
 
+{{cfg.name}}-rvm-env:
+  file.managed:
+    - makedirs: true
+    - name: "{{data.home}}/rvm_env.sh"
+    - contents: |
+                export GEM_HOME="/usr/local/rvm/gems/{{data.rversion}}@{{cfg.name}}"
+                export IRBRC="/usr/local/rvm/rubies/ruby-{{data.rversion}}/.irbrc"
+                export MY_RUBY_HOME="/usr/local/rvm/rubies/ruby-{{data.rversion}}"
+                export PATH="/usr/local/rvm/gems/ruby-{{data.rversion}}@g{{cfg.name}}{{data.rversion}}@global/bin:/usr/local/rvm/rubies/ruby-{{data.rversion}}/bin:${PATH}"
+                export rvm_ruby_string="ruby-{{data.rversion}}"
+                export GEM_PATH="/usr/local/rvm/gems/ruby-{{data.rversion}}@{{cfg.name}}:/usr/local/rvm/gems/ruby-{{data.rversion}}@global"
+                export RUBY_VERSION="ruby-{{data.rversion}}"
+    - mode: 755
+    - user: "root"
+    - group: "root"
+
+{{cfg.name}}-hooks-wrapper:
+  file.managed:
+    - makedirs: true
+    - name: "{{data.home}}/wrap_hooks.sh"
+    - contents: |
+                #!/usr/bin/env bash
+                set -e
+                set -x
+                GS="${1:-{{data.home}}/gitlab-shell}"
+                cd "${GS}"
+                git stash
+                cd hooks
+                for i in $(ls -1 *|grep -v real);do
+                    cp "${i}" "${i}.real.rb"
+                    echo "#/usr/bin/env bash">"${i}"
+                    echo ". {{data.home}}/rvm_env.sh">>"${i}"
+                    echo "exec ruby ./hooks/${i}.real.rb \"\${@}\"">>"${i}"
+                done
+    - mode: 755
+    - user: "root"
+    - group: "root"
+
 {{cfg.name}}-ruby-wrapper:
   file.managed:
     - makedirs: true
