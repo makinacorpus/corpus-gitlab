@@ -89,9 +89,10 @@ makina-projects.projectname:
     ldap_base: 'ou=People,{ldap_dn}'
     active_directory: "false"
     git_max_size: 20971520
-    signup_enabled: "true"
+    signup_enabled: "false"
     signin_enabled: "true"
     sshgroup: sshusers
+    git_user_aliases: [gitorious-git]
 
   env_defaults:
     dev:
