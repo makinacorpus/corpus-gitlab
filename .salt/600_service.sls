@@ -20,17 +20,18 @@ include:
   'gid': data.group,
   'copy_env': True,
   'working_dir': data.dir,
-  'warmup_delay': "40",
+  'warmup_delay': "30",
   'max_age': 24*60*60}%}
 {{ circus.circusAddWatcher(cfg.name+'-web', **circus_data) }}
 {% set circus_data = {
-  'cmd': '{0}/rvm.sh bin/background_jobs start_no_deamonize'.format(
-    cfg.project_root),
+  'cmd': '{0}/rvm.sh bin/bundle exec sidekiq -t 1 -q post_receive -q mailer -q system_hook -q project_web_hook -q gitlab_shell -q common -q default -e {1}'.format(
+    cfg.project_root, 'production'),
   'environment': {'RAILS_ENV': 'production'},
   'uid': data.user,
   'gid': data.group,
   'copy_env': True,
   'working_dir': data.dir,
-  'warmup_delay': "40",
+  'warmup_delay': "30",
+  'stop_children': True,
   'max_age': 24*60*60}%}
 {{ circus.circusAddWatcher(cfg.name+'-jobs', **circus_data) }}
