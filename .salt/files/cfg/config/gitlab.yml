@@ -194,7 +194,7 @@ production: &base
         #
         #   Note: GitLab does not support omniauth-ldap's custom filter syntax.
         #
-        user_filter: ''
+        user_filter: '{{data.get('ldap_user_filter', '')}}'
 
       # GitLab EE only: add more LDAP servers
       # Choose an ID made of a-z and 0-9 . This ID will be stored in the database
