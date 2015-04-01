@@ -36,9 +36,9 @@ makina-projects.projectname:
     user: "git"
     group: "www-data"
     rversion: "2.1.5"
-    shellversion: "2.4.0"
+    shellversion: "2.6.0"
     log_level: Logger::ERROR
-    version: 7-6-stable
+    version: 7-9-stable
     smtp_address: 127.0.0.1
     smtp_tls: true
     smtp_noauth: False

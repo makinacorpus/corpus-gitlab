@@ -74,6 +74,7 @@ prepreqs-{{cfg.name}}:
       - zlib1g-dev
       - imagemagick
       - ruby-rmagick
+      - nodejs
 {% set dirs = [
   (cfg.data.home, '751'),
   (cfg.data.home + '/.ssh', '700'),
