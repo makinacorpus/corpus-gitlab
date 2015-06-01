@@ -36,9 +36,9 @@ makina-projects.projectname:
     user: "git"
     group: "www-data"
     rversion: "2.1.5"
-    shellversion: "2.6.0"
+    shellversion: "2.6.3"
     log_level: Logger::ERROR
-    version: 7-9-stable
+    version: 7-11-stable
     smtp_address: 127.0.0.1
     smtp_tls: true
     smtp_noauth: False
@@ -93,6 +93,7 @@ makina-projects.projectname:
     signin_enabled: "true"
     sshgroup: sshusers
     git_user_aliases: [gitorious-git]
+    block_auto_created_users: false
 
   env_defaults:
     dev:

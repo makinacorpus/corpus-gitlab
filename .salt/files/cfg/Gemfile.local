@@ -1,2 +1,3 @@
 {% set cfg = salt['mc_project.get_configuration'](project) %}
 gem 'puma'
+gem 'pg'
