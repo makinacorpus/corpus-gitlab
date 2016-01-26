@@ -4,6 +4,12 @@
 {% set project_root=cfg.project_root%}
 {% import "makina-states/localsettings/rvm.sls" as rvm with context %}
 
+{{cfg.name}}-git-eol:
+  cmd.run:
+    - name: git config --global core.autocrlf input && echo changed=false
+    - stateful: true
+    - user: root
+
 {% macro project_rvm() %}
 {% do kwargs.setdefault('gemset', cfg.name)%}
 {% do kwargs.setdefault('version', data.rversion)%}
