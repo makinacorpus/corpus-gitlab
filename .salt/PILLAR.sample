@@ -23,22 +23,46 @@
 
 
 makina-projects.projectname:
+  group: git
   data:
+    configs:
+      {% for i, fdata in {
+             'Gemfile.local': {},
+             'config/environments/production.rb': {},
+             'config/initializers/rack_attack.rb': {},
+             'config/unicorn.rb': {},
+             'config/resque.yml': {},
+             'config/gitlab.yml': {},
+             'config/database.yml': {},
+             '/etc/logrotate.d/gitlab': {},
+             '/etc/default/gitlab': {},
+    }.items() %}
+      "{{i}}":
+        {% if i.startswith('/') %}
+        target: {{i}}
+        {% endif %}
+        mode: {{ fdata.get('mode', '640') }}
+        user: "{user}"
+        group: "{group}"
+      {% endfor%}
     domain: "{fqdn}"
     root_password: "{{salt['mc_utils.generate_stored_password']('gitlabroot')}}"
     nginx_upstreams: salt://makina-projects/{name}/files/nginx.upstreams.conf
     nginx_vhost: salt://makina-projects/{name}/files/nginx.content.conf
     url: https://gitlab.com/gitlab-org/gitlab-ce.git
+    workhorse_url: https://gitlab.com/gitlab-org/gitlab-workhorse.git
     home: "{data_root}/gitlab"
     dir: "{home}/gitlab"
+    workhorse_dir: "{home}/gitlab_workhorse"
     repos_path: "{home}/repositories"
     satellites_dir: "{home}/gitlab-satellites"
     user: "git"
-    group: "www-data"
-    rversion: "2.1.5"
-    shellversion: "2.6.3"
-    log_level: Logger::ERROR
     version: 7-11-stable
+    rversion: "2.3.1"
+    #shell_version: "3.4.0"
+    shell_version: "2.6.3"
+    workhorse_version: "v0.8.1"
+    log_level: Logger::ERROR
     smtp_address: 127.0.0.1
     smtp_tls: true
     smtp_noauth: False

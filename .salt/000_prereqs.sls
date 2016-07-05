@@ -6,9 +6,10 @@ include:
   - makina-states.services.http.nginx
   - makina-states.services.db.redis
   - makina-states.localsettings.rvm
+  - makina-states.localsettings.golang
   - makina-states.localsettings.users.hooks
 
-{% import "makina-states/localsettings/rvm.sls" as rvm with context %}
+{% import "makina-states/localsettings/rvm/init.sls" as rvm with context %}
 {% import "makina-states/localsettings/users/init.sls" as users with context %}
 {{users.create_user(data.user, {'home': data.home})}}
 {{rvm.install_ruby(data.rversion)}}
@@ -76,17 +77,17 @@ prepreqs-{{cfg.name}}:
       - ruby-rmagick
       - nodejs
 {% set dirs = [
-  (cfg.data.home, '751'),
-  (cfg.data.home + '/.ssh', '700'),
-  (cfg.data.repos_path, '750'),
-  (cfg.data.satellites_dir, '750')]
+  (cfg.data.home, '2771'),
+  (cfg.data.home + '/.ssh', '2751'),
+  (cfg.data.repos_path, '2771'),
+  (cfg.data.satellites_dir, '2771')]
 %}
 {% for d, m in dirs %}
 {{cfg.name}}-dirs-{{d}}:
   file.directory:
     - makedirs: true
     - user: {{data.user}}
-    - group: {{data.group}}
+    - group: {{cfg.group}}
     - mode: "{{m}}"
     - watch:
       - pkg: prepreqs-{{cfg.name}}

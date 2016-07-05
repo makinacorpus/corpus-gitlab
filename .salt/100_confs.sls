@@ -1,4 +1,5 @@
 {% set cfg = opts.ms_project %}
+{% import "makina-states/_macros/h.jinja" as h with context %}
 {% set data = cfg.data %}
 {% set scfg = salt['mc_utils.json_dump'](cfg) %}
 {% set project_root=cfg.project_root%}
@@ -9,6 +10,8 @@
             git config --global user.name "GitLab"
             git config --global user.email "git@{{data.domain}}"
             git config --global core.autocrlf input
+            git config --global gc.auto 0
+            git config --global repack.writeBitmaps true
     - user: {{data.user}}
 
 {{cfg.name}}-download-gitlab:
@@ -24,46 +27,40 @@
     - target: "{{data.dir}}"
     - user: "{{data.user}}"
     - rev: "{{data.version}}"
-    - makedirs: true
     - require:
       - cmd: {{cfg.name}}-download-gitlab
 
-{% for i in ['Gemfile.local',
-             'config/environments/production.rb',
-             'config/initializers/rack_attack.rb',
-             'config/unicorn.rb',
-             'config/resque.yml',
-             'config/gitlab.yml',
-             'config/database.yml'] %}
-{{cfg.name}}-{{i}}:
-  file.managed:
-    - require:
-      - cmd: {{cfg.name}}-setup-git
-    - makedirs: true
-    - source: salt://makina-projects/{{cfg.name}}/files/cfg/{{i}}
-    - name:  {{data.dir}}/{{i}}
-    - template: jinja
-    - mode: 770
-    - user: "{{cfg.user}}"
-    - group: "root"
-    - defaults:
-        project: {{cfg.name}}
-{% endfor %}
-{% for i in [
-             '/etc/logrotate.d/gitlab',
-            ] %}
-{{cfg.name}}-{{i}}:
-  file.managed:
-    - makedirs: true
-    - source: salt://makina-projects/{{cfg.name}}/files/cfg/{{i}}
-    - name:  {{i}}
-    - template: jinja
-    - mode: 770
-    - user: "root"
-    - group: "root"
-    - defaults:
-        project: {{cfg.name}}
-{% endfor %}
+{{cfg.name}}-configs-before:
+  mc_proxy.hook:
+    - watch_in:
+      - mc_proxy: {{cfg.name}}-configs-pre
+
+{{cfg.name}}-configs-pre:
+  mc_proxy.hook: []
+{% macro rmacro() %}
+    - watch_in:
+      - mc_proxy: {{cfg.name}}-configs-post
+    - watch:
+      - mc_proxy: {{cfg.name}}-configs-pre
+{% endmacro %}
+{{ h.deliver_config_files(
+     data.get('configs', {}),
+     dir='makina-projects/{0}/files/cfg/'.format(cfg.name),
+     mode='640',
+     user=data.user,
+     group=cfg.group,
+     target_prefix=data.dir+"/",
+     after_macro=rmacro, prefix=cfg.name+'-config-conf',
+     project=cfg.name,
+     cfg=cfg.name)}}
+
+{{cfg.name}}-configs-post:
+  mc_proxy.hook:
+    - watch_in:
+      - mc_proxy: {{cfg.name}}-configs-after
+
+{{cfg.name}}-configs-after:
+  mc_proxy.hook: []
 
 {{cfg.name}}-profiled-rvm:
   file.managed:

@@ -2,7 +2,7 @@
 {% set data = cfg.data %}
 {% set scfg = salt['mc_utils.json_dump'](cfg) %}
 {% set project_root=cfg.project_root%}
-{% import "makina-states/localsettings/rvm.sls" as rvm with context %}
+{% import "makina-states/localsettings/rvm/init.sls" as rvm with context %}
 
 {{cfg.name}}-git-eol:
   cmd.run:
@@ -18,42 +18,38 @@
       - RAILS_ENV: production
 {% endmacro%}
 
-{{cfg.name}}-rvm-wrapper-env:
+{{cfg.name}}-rvm-wrapper-loader:
   file.managed:
-    - name: {{data.dir}}/rvm-env.sh
+    - name: {{data.home}}/rvm-loader.sh
     - mode: 750
     - user: {{data.user}}
     - group: {{cfg.group}}
     - contents: |
                 #!/usr/bin/env bash
                 set -e
-
-                CWD="${PWD}";
                 GEMSET="${GEMSET:-"{{cfg.name}}"}";
                 RVERSION="${RVERSION:-"{{data.rversion.strip()}}"}"
-
                 . /etc/profile
                 . /usr/local/rvm/scripts/rvm
                 rvm --create use ${RVERSION}@${GEMSET}
 
 {{cfg.name}}-rvm-wrapper:
   file.managed:
-    - name: {{data.dir}}/rvm.sh
+    - name: {{data.home}}/rvm.sh
     - mode: 750
     - user: {{data.user}}
     - group: {{cfg.group}}
     - require:
-      - file: {{cfg.name}}-rvm-wrapper-env
+      - file: {{cfg.name}}-rvm-wrapper-loader
     - contents: |
                 #!/usr/bin/env bash
                 set -e
-                cd "${CWD}"
-                . ./rvm-env.sh
+                . "{{data.home}}/rvm-loader.sh"
                 exec "${@}"
 
 {{cfg.name}}-add-to-rvm:
   user.present:
-    - names: [{{data.user}}, {{data.user}}]
+    - names: [{{data.user}}]
     - optional_groups: [rvm]
     - remove_groups: false
 
@@ -78,7 +74,7 @@
 
 {{project_rvm(
  'bundle install -j{2} --path {0}/gems '
- '--deployment --without development test {1} aws'.format(
+ '--deployment --without kerberos development test {1} aws'.format(
      data.dir, data.db_gem, data.worker_processes),
  state=cfg.name+'-install-gitlab')}}
     - cwd: {{data.dir}}
@@ -89,7 +85,7 @@
 
 {{project_rvm(
  'rake gitlab:setup force=yes RAILS_ENV=production GITLAB_ROOT_PASSWORD={2} && touch {0}/skip_setup'.format(
-     data.home, data.db_gem, data.root_password),
+     data.home, data.db_gem, data.root_password, data.version),
  state=cfg.name+'-setup-gitlab')}}
     - onlyif: test ! -e {{data.home}}/skip_setup
     - cwd: {{data.dir}}
@@ -98,11 +94,11 @@
       - cmd: {{cfg.name+'-install-gitlab'}}
 
 {{project_rvm(
- 'rake gitlab:shell:install[v{3}] REDIS_URL="{4}" RAILS_ENV=production && touch {0}/skip_shell'.format(
+ 'rake gitlab:shell:install[v{3}] REDIS_URL="{4}" RAILS_ENV=production && touch {0}/skip_shell_v{3}'.format(
      data.home, data.db_gem, data.root_password,
-     data.shellversion, data.redis_url),
+     data.shell_version, data.redis_url),
  state=cfg.name+'-setup-shell')}}
-    - onlyif: test ! -e {{data.home}}/skip_shell
+    - onlyif: test ! -e {{data.home}}/skip_shell_v{{data.shell_version}}
     - cwd: {{data.dir}}
     - user: {{data.user}}
     - require:
@@ -116,7 +112,7 @@
     - name:  {{data.home}}/gitlab-shell/{{i}}
     - template: jinja
     - mode: 770
-    - user: "{{cfg.user}}"
+    - user: "{{data.user}}"
     - group: "root"
     - defaults:
         project: {{cfg.name}}
