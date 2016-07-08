@@ -24,6 +24,7 @@
       - cmd: {{cfg.name}}-setup-git
   mc_git.latest:
     - name: "{{data.url}}"
+    - force_reset: true
     - target: "{{data.dir}}"
     - user: "{{data.user}}"
     - rev: "{{data.version}}"

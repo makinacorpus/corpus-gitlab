@@ -30,6 +30,7 @@ makina-projects.projectname:
              'Gemfile.local': {},
              'config/environments/production.rb': {},
              'config/initializers/rack_attack.rb': {},
+             'config/initializers/smtp_settings.rb': {},
              'config/unicorn.rb': {},
              'config/resque.yml': {},
              'config/gitlab.yml': {},
@@ -53,24 +54,33 @@ makina-projects.projectname:
     workhorse_url: https://gitlab.com/gitlab-org/gitlab-workhorse.git
     home: "{data_root}/gitlab"
     dir: "{home}/gitlab"
-    workhorse_dir: "{home}/gitlab_workhorse"
+    workhorse_dir: "{home}/gitlab-workhorse"
     repos_path: "{home}/repositories"
     satellites_dir: "{home}/gitlab-satellites"
     user: "git"
-    version: 7-11-stable
+    version: "8-12-stable"
     rversion: "2.3.1"
-    #shell_version: "3.4.0"
-    shell_version: "2.6.3"
+    shell_version: "3.4.0"
     workhorse_version: "v0.8.1"
     log_level: Logger::ERROR
+    email_from: "git@{fqdn}"
     smtp_address: 127.0.0.1
     smtp_tls: true
     smtp_noauth: False
     smtp_port: 25
-    email_from: "git@{fqdn}"
-    smtp_domain: null
-    smtp_user: foo.com
-    smtp_password: foo.com
+    smtp_domain: "{domain}"
+    smtp_user: null
+    imap_incoming_user: "gitlab+%{key}@{smtp_domain}"
+    imap_user: "gitlab@{smtp_domain}"
+    noreply_user: "noreply@{smtp_domain}"
+    email_display_name: "GitLab"
+    imap_password: "{smtp_password}"
+    smtp_password: null
+    imap_server: null
+    imap_starttls: false
+    imap_port: 993
+    imap_ssl: true
+    openssl_verify_mode: 'peer'
     files: "{data_root}/files"
     redis_host: localhost
     redis_port: 6379
@@ -86,8 +96,10 @@ makina-projects.projectname:
     db_port: 5432
     use_ldap: false
     # unicorn settings
+    shell: /bin/bash
     host: 127.0.0.1
     port: 8080
+    mail_from_enabled: true
     worker_timeout: 600
     worker_processes: 2
     # gitlab.yaml settings
@@ -100,7 +112,11 @@ makina-projects.projectname:
     project_merge_requests: "true"
     project_wiki: "true"
     project_snippets: "true"
+    project_builds: "true"
     project_visibility: "private"
+    project_container_registry: true
+    artifacts_enabled: true
+    git_lfs_enabled: true
     webhook_timeout: 10
     ldap_host: ""
     ldap_port: "389"

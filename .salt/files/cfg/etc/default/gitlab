@@ -2,6 +2,7 @@
 # /etc/default/gitlab in order for it to apply to your system.
 
 {% set cfg = salt['mc_project.get_configuration'](project) %}
+{% set data = cfg.data %}
 # RAILS_ENV defines the type of installation that is running.
 # Normal values are "production", "test" and "development".
 RAILS_ENV="production"
@@ -30,3 +31,33 @@ web_server_pid_path="$pid_path/unicorn.pid"
 # sidekiq_pid_path defines the path in which to create the pid file for sidekiq
 # The default is "$pid_path/sidekiq.pid"
 sidekiq_pid_path="$pid_path/sidekiq.pid"
+
+gitlab_workhorse_dir=$(cd $app_root/../gitlab-workhorse && pwd)
+gitlab_workhorse_pid_path="$pid_path/gitlab-workhorse.pid" 
+
+
+# The -listenXxx settings determine where gitlab-workhorse
+# listens for connections from the web server. By default it listens to a
+# socket. To listen on TCP connections (needed by Apache) change to:
+# '-listenNetwork tcp -listenAddr 127.0.0.1:8181'
+#
+# The -authBackend setting tells gitlab-workhorse where it can reach Unicorn.
+# For relative URL support change to:
+# '-authBackend http://127.0.0.1/8080/gitlab'
+# Read more in http://doc.gitlab.com/ce/install/relative_url.html
+gitlab_workhorse_options="-listenUmask 0 -listenNetwork unix -listenAddr $socket_path/gitlab-workhorse.socket -authBackend http://{{data.host}}:{{data.port}} -authSocket $socket_path/gitlab.socket -documentRoot $app_root/public"
+gitlab_workhorse_log="$app_root/log/gitlab-workhorse.log"
+
+# mail_room_enabled specifies whether mail_room, which is used to process incoming email, is enabled.
+# This is required for the Reply by email feature.
+# The default is "false"
+mail_room_enabled={{"{0}".format(data.mail_from_enabled).lower()}}
+
+# mail_room_pid_path defines the path in which to create the pid file for mail_room
+# The default is "$pid_path/mail_room.pid"
+mail_room_pid_path="$pid_path/mail_room.pid"
+
+# shell_path defines the path of shell for "$app_user" in case you are using
+# shell other than "bash"
+# The default is "/bin/bash"
+shell_path="{{data.shell}}"

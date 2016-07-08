@@ -3,16 +3,15 @@
 #
 
 {% set cfg = salt['mc_project.get_configuration'](project) %}
-{% set data = cfg.data %} 
+{% set data = cfg.data %}
 paths_to_be_protected = [
-  "#{Rails.application.config.relative_url_root}/users/password",
-  "#{Rails.application.config.relative_url_root}/users/sign_in",
-  "#{Rails.application.config.relative_url_root}/api/#{API::API.version}/session.json",
-  "#{Rails.application.config.relative_url_root}/api/#{API::API.version}/session",
-  "#{Rails.application.config.relative_url_root}/users",
-  "#{Rails.application.config.relative_url_root}/users/confirmation",
-  "#{Rails.application.config.relative_url_root}/unsubscribes/"
-
+  "#{Gitlab::Application.config.relative_url_root}/users/password",
+  "#{Gitlab::Application.config.relative_url_root}/users/sign_in",
+  "#{Gitlab::Application.config.relative_url_root}/api/#{API::API.version}/session.json",
+  "#{Gitlab::Application.config.relative_url_root}/api/#{API::API.version}/session",
+  "#{Gitlab::Application.config.relative_url_root}/users",
+  "#{Gitlab::Application.config.relative_url_root}/users/confirmation",
+  "#{Gitlab::Application.config.relative_url_root}/unsubscribes/"
 ]
 
 # Create one big regular expression that matches strings starting with any of
@@ -25,4 +24,4 @@ unless Rails.env.test?
       req.ip
     end
   end
-end 
+end
