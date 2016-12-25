@@ -38,6 +38,7 @@ makina-projects.projectname:
              '/etc/logrotate.d/gitlab': {'user': 'root',
                                          'group': 'root'},
              '/etc/default/gitlab': {'user': 'root',
+																		 'mode': '644',
                                      'group': 'root'},
     }.items() %}
       "{{i}}":
@@ -60,10 +61,10 @@ makina-projects.projectname:
     repos_path: "{home}/repositories"
     satellites_dir: "{home}/gitlab-satellites"
     user: "git"
-    version: "8-12-stable"
+    version: "8-16-stable"
     rversion: "2.3.1"
-    shell_version: "3.6.1"
-    workhorse_version: "v0.8.4"
+    shell_version: "4.1.1"
+    workhorse_version: "v1.3.0"
     log_level: Logger::ERROR
     email_from: "git@{fqdn}"
     smtp_address: 127.0.0.1
@@ -136,7 +137,12 @@ makina-projects.projectname:
     sshgroup: sshusers
     git_user_aliases: [gitorious-git]
     block_auto_created_users: false
-
+    mattermost_enabled: false
+    mattermost_host: "https://mattermost.example.com"
+    email_subject_suffix: ""
+    ci_all_broken_builds: true
+    ci_pusher: false
+    ci_builds_path: "builds/"
   env_defaults:
     dev:
       opt: value2
