@@ -1,0 +1,12 @@
+{%- macro url(data) %}
+{%- set url='redis://' %}
+{%- if data.redis_user     %}{% set url = "{0}{1}".format(
+    url, data.redis_user) %}{% endif%}
+{%- if data.redis_password %}{% set url = "{0}:{1}".format(
+    url, data.redis_password) %}{% endif%}
+{%- if data.redis_user or data.redis_password %}{% set url = "{0}@".format(
+    url) %}{% endif%}
+{%- if data.redis_host     %}{% set url = "{0}{1}".format(
+    url, data.redis_host) %}{% endif%}
+{%- if data.redis_port     %}{% set url = "{0}:{1}".format(
+url, data.redis_port) %}{% endif%}{{url}}{%- endmacro %}

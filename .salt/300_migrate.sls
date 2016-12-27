@@ -3,6 +3,7 @@
 {% set scfg = salt['mc_utils.json_dump'](cfg) %}
 {% set project_root=cfg.project_root%}
 {% import "makina-states/localsettings/rvm/init.sls" as rvm with context %}
+{% import "makina-projects/{0}/redis.j2".format(cfg.name) as redis with context %}
 
 {% macro project_rvm() %}
 {% do kwargs.setdefault('gemset', cfg.name)%}
@@ -22,7 +23,7 @@
 {{project_rvm(
  cmd.format(
      data.home, data.db_gem, data.root_password,
-     data.shell_version, data.redis_url, data.worker_processes),
+     data.shell_version, redis.url(data), data.worker_processes),
  state=cfg.name+'-{0}'.format(cmd))}}
     - cwd: {{data.dir}}
     - user: {{data.user}}

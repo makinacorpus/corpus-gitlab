@@ -21,6 +21,9 @@
 # attachements
 # makina-states.services.http.nginx.client_max_body_size: 700M
 
+# add to pillar pillar
+# makina-states.services.db.redis.password: False
+
 
 makina-projects.projectname:
   group: git
@@ -87,8 +90,8 @@ makina-projects.projectname:
     files: "{data_root}/files"
     redis_host: localhost
     redis_port: 6379
+    redis_user: ""
     redis_password: ""
-    redis_url: "redis://:{redis_password}@{redis_host}:{redis_port}/"
     db_gem: postgresql
     db_adapter: postgresql
     db_name: gitlab_production
