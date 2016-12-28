@@ -21,10 +21,6 @@
 # attachements
 # makina-states.services.http.nginx.client_max_body_size: 700M
 
-# add to pillar pillar
-# makina-states.services.db.redis.password: False
-
-
 makina-projects.projectname:
   group: git
   data:
