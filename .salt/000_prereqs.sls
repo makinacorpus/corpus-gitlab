@@ -7,6 +7,7 @@ include:
   - makina-states.services.db.redis
   - makina-states.services.db.postgresql.client
   - makina-states.localsettings.rvm
+  - makina-states.localsettings.nodejs
   - makina-states.localsettings.golang
   - makina-states.localsettings.users.hooks
 
