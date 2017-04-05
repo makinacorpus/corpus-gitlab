@@ -83,7 +83,7 @@ prepreqs-{{cfg.name}}:
       - python3-docutils
 
 {% set dirs = [
-  (cfg.data.home, '2771'),
+  (cfg.data.home, '2751'),
   (cfg.data.home + '/.ssh', '2751'),
   (cfg.data.repos_path, '2771'),
   (cfg.data.satellites_dir, '2771')]

@@ -37,7 +37,7 @@ makina-projects.projectname:
              '/etc/logrotate.d/gitlab': {'user': 'root',
                                          'group': 'root'},
              '/etc/default/gitlab': {'user': 'root',
-																		 'mode': '644',
+                                     'mode': '644',
                                      'group': 'root'},
     }.items() %}
       "{{i}}":
@@ -50,20 +50,31 @@ makina-projects.projectname:
       {% endfor%}
     domain: "{fqdn}"
     root_password: "{{salt['mc_utils.generate_stored_password']('gitlabroot')}}"
+    gitaly_enabled: true
+    gitaly_build_id: 1
+    gitaly_log: "{dir}/log/gitaly.log"
+    nginx_containerregistry_upstreams: salt://makina-projects/{name}/files/nginx.containerregistry.upstreams.conf
+    nginx_containerregistry_vhost: salt://makina-projects/{name}/files/nginx.containerregistry.content.conf
+    container_registry_host: "registry.foo.com"
+    nginx_pages_upstreams: salt://makina-projects/{name}/files/nginx.pages.upstreams.conf
+    nginx_pages_vhost: salt://makina-projects/{name}/files/nginx.pages.content.conf
     nginx_upstreams: salt://makina-projects/{name}/files/nginx.upstreams.conf
     nginx_vhost: salt://makina-projects/{name}/files/nginx.content.conf
     url: https://gitlab.com/gitlab-org/gitlab-ce.git
     workhorse_url: https://gitlab.com/gitlab-org/gitlab-workhorse.git
+    pages_url: https://gitlab.com/gitlab-org/gitlab-pages.git
     home: "{data_root}/gitlab"
     dir: "{home}/gitlab"
     workhorse_dir: "{home}/gitlab-workhorse"
+    pages_dir: "{home}/gitlab-pages"
     repos_path: "{home}/repositories"
     satellites_dir: "{home}/gitlab-satellites"
     user: "git"
-    version: "8-16-stable"
-    rversion: "2.3.1"
-    shell_version: "4.1.1"
-    workhorse_version: "v1.3.0"
+    rversion: "2.3.3"
+    version: "9-0-stable"
+    pages_version: "v0.4.0"
+    workhorse_version: "v1.4.3"
+    shell_version: "5.0.0"
     log_level: Logger::ERROR
     email_from: "git@{fqdn}"
     smtp_address: 127.0.0.1
@@ -138,20 +149,20 @@ makina-projects.projectname:
     block_auto_created_users: false
     mattermost_enabled: false
     mattermost_host: "https://mattermost.example.com"
+    pages_enabled: false
+    pages_host: "https://pages.example.com"
+    pages_port: 80
+    pages_log: "{dir}/log/pages.log"
+    pages_https: false
     email_subject_suffix: ""
     ci_all_broken_builds: true
     ci_pusher: false
     ci_builds_path: "builds/"
-  env_defaults:
-    dev:
-      opt: value2
-  os_defaults:
-    Ubuntu:
-# os  filter
-      opt: value1
-    Debian:
-# os familly filter
-      opt1: value11
-
-
+    registry_enabled: false
+    registry_host: registry.example.com
+    registry_port: 5005
+    registry_api_url: "http://localhost:5000/"
+    registry_key: config/registry.key
+    registry_path: shared/registry
+    registry_issuer: gitlab-issuer
 # vim:set ft=yaml sts=2 ts=2:

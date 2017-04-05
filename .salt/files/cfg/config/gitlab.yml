@@ -120,8 +120,8 @@ production: &base
       wiki: {{data.project_wiki}}
       snippets: {{data.project_snippets}}
       builds: {{data.project_builds}}
-      visibility_level: "{{data.project_visibility}}"  # can be "private" | "internal" | "public"
       container_registry: {{data.project_container_registry}}
+      visibility_level: "{{data.project_visibility}}"  # can be "private" | "internal" | "public"
 
     ## Webhook settings
     # Number of seconds to wait for HTTP response after sending webhook HTTP POST request (default: 10)
@@ -134,7 +134,7 @@ production: &base
 
   ## Reply by email
   # Allow users to comment on issues and merge requests by replying to notification emails.
-  # For documentation on how to set this up, see http://doc.gitlab.com/ce/incoming_email/README.html
+  # For documentation on how to set this up, see http://doc.gitlab.com/ce/administration/reply_by_email.html
   incoming_email:
     {% if data.smtp_user and data.imap_server %}
     enabled: true
@@ -173,17 +173,38 @@ production: &base
     # The location where build artifacts are stored (default: shared/artifacts).
     # path: shared/artifacts
 
-  ## Mattermost
-  ## For enabling Add to Mattermost button
-  mattermost:
-    enabled: {{data.mattermost_enabled}}
-    host: "{{data.mattermost_host}}"
-
   ## Git LFS
   lfs:
     enabled: {{data.git_lfs_enabled}}
     # The location where LFS objects are stored (default: shared/lfs-objects).
     # storage_path: shared/lfs-objects
+
+  ## GitLab Pages
+  pages:
+    enabled: {{data.pages_enabled}}
+    # The location where pages are stored (default: shared/pages).
+    # path: shared/pages
+
+    # The domain under which the pages are served:
+    # http://group.example.com/project
+    # or project path can be a group page: group.example.com
+    host: "{{data.pages_host}}"
+    port: {{data.pages_port}} # Set to 443 if you serve the pages with HTTPS
+    https: {{data.pages_https}} # Set to true if you serve the pages with HTTPS
+    {% if data.get('external_http', '') %}
+    # external_http: "1.1.1.1:80" # If defined, enables custom domain support in GitLab Pages
+    external_http: {{data.external_http}}
+    {% endif %}
+    {% if data.get('external_https', '') %}
+    # external_https: "1.1.1.1:443" # If defined, enables custom domain and certificate support in GitLab Pages
+    external_http: {{data.external_https}}
+    {% endif %}
+
+  ## Mattermost
+  ## For enabling Add to Mattermost button
+  mattermost:
+    enabled: {{data.mattermost_enabled}}
+    host: "{{data.mattermost_host}}"
 
   ## Gravatar
   ## For Libravatar see: http://doc.gitlab.com/ce/customization/libravatar.html
@@ -197,9 +218,9 @@ production: &base
   # Periodically executed jobs, to self-heal Gitlab, do external synchronizations, etc.
   # Please read here for more information: https://github.com/ondrejbartas/sidekiq-cron#adding-cron-job
   cron_jobs:
-    # Flag stuck CI builds as failed
-    stuck_ci_builds_worker:
-      cron: "0 0 * * *"
+    # Flag stuck CI jobs as failed
+    stuck_ci_jobs_worker:
+      cron: "0 * * * *"
     # Remove expired build artifacts
     expire_build_artifacts_worker:
       cron: "50 * * * *"
@@ -216,10 +237,10 @@ production: &base
       cron: "0 * * * *"
 
   registry:
-    # enabled: true
-    # host: registry.example.com
-    # port: 5005
-    # api_url: http://localhost:5000/ # internal address to the registry, will be used by GitLab to directly communicate with API
+    enabled: {{data.registry_enabled}}
+    host: "{{data.registry_host}}"
+    port: {{data.registry_port}}
+    api_url: "{{data.registry_api_url}}"
     # key: config/registry.key
     # path: shared/registry
     # issuer: gitlab-issuer
@@ -465,6 +486,16 @@ production: &base
   shared:
     # path: /mnt/gitlab # Default: shared
 
+  # Gitaly settings
+  gitaly:
+    # The socket_path setting is optional and obsolete. When this is set
+    # GitLab assumes it can reach a Gitaly services via a Unix socket at
+    # this path. When this is commented out GitLab will not use Gitaly.
+    #
+    # This setting is obsolete because we expect it to be moved under
+    # repositories/storages in GitLab 9.1.
+    #
+    # socket_path: tmp/sockets/private/gitaly.socket
 
   #
   # 4. Advanced settings
@@ -485,7 +516,12 @@ production: &base
     # gitlab-shell invokes Dir.pwd inside the repository path and that results
     # real path not the symlink.
     storages: # You must have at least a `default` storage path.
+    {% if data.version.split('-')[0] < '9' %}
       default: "{{data.repos_path}}"
+    {% else %}
+      default:
+        path: "{{data.repos_path}}"
+    {% endif %}
 
   ## Backup settings
   backup:
@@ -507,6 +543,8 @@ production: &base
     #   multipart_chunk_size: 104857600
     #   # Turns on AWS Server-Side Encryption with Amazon S3-Managed Keys for backups, this is optional
     #   # encryption: 'AES256'
+    #   # Specifies Amazon S3 storage class to use for backups, this is optional
+    #   # storage_class: 'STANDARD'
 
   ## GitLab Shell settings
   gitlab_shell:
@@ -535,6 +573,16 @@ production: &base
     max_size: {{data.git_max_size}} # 20.megabytes
     # Git timeout to read a commit, in seconds
     timeout: 10
+
+  ## Webpack settings
+  # If enabled, this will tell rails to serve frontend assets from the webpack-dev-server running
+  # on a given port instead of serving directly from /assets/webpack. This is only indended for use
+  # in development.
+  webpack:
+    # dev_server:
+    #   enabled: true
+    #   host: localhost
+    #   port: 3808
 
   #
   # 5. Extra customization
@@ -584,9 +632,16 @@ test:
     # user: YOUR_USERNAME
   satellites:
     path: tmp/tests/gitlab-satellites/
+  pages:
+    path: tmp/tests/pages
   repositories:
     storages:
+    {% if data.version.split('-')[0] < '9' %}
       default: tmp/tests/repositories/
+    {% else %}
+      default:
+        path: tmp/tests/repositories/
+    {% endif %}
   backup:
     path: tmp/tests/backups
   gitlab_shell:
@@ -600,7 +655,7 @@ test:
       new_issue_url: "http://redmine/projects/:issues_tracker_id/issues/new"
     jira:
       title: "JIRA"
-      url: https://sample_company.atlasian.net
+      url: https://sample_company.atlassian.net
       project_key: PROJECT
   ldap:
     enabled: false

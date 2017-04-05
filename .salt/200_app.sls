@@ -1,9 +1,10 @@
 {% set cfg = opts.ms_project %}
 {% set data = cfg.data %}
-{% set scfg = salt['mc_utils.json_dump'](cfg) %}
 {% set project_root=cfg.project_root%}
 {% import "makina-states/localsettings/rvm/init.sls" as rvm with context %}
-{% import "makina-projects/{0}/redis.j2".format(cfg.name) as redis %}
+
+include:
+  - makina-projects.{{cfg.name}}.include.configs 
 
 {{cfg.name}}-git-eol:
   cmd.run:
@@ -93,48 +94,4 @@
     - user: {{data.user}}
     - require:
       - cmd: {{cfg.name+'-install-gitlab'}}
-
-{{project_rvm(
- 'rake gitlab:shell:install[v{3}] REDIS_URL="{4}" RAILS_ENV=production && touch {0}/skip_shell_v{3}'.format(
-     data.home, data.db_gem, data.root_password,
-     data.shell_version, redis.url(data)),
- state=cfg.name+'-setup-shell')}}
-    - onlyif: test ! -e {{data.home}}/skip_shell_v{{data.shell_version}}
-    - cwd: {{data.dir}}
-    - user: {{data.user}}
-    - require:
-      - cmd: {{cfg.name+'-setup-gitlab'}}
-
-# stash any changes to git shell first
-{{cfg.name}}-stash:
-  cmd.run:
-    - name: if git diff -q --exit-code; then git stash;fi
-    - cwd: "{{data.home}}/gitlab-shell"
-    - require:
-      - cmd: {{cfg.name+'-setup-shell'}}
-
-{% for i in ['config.yml'] %}
-{{cfg.name}}-{{i}}:
-  file.managed:
-    - makedirs: true
-    - source: salt://makina-projects/{{cfg.name}}/files/cfg/{{i}}
-    - name:  {{data.home}}/gitlab-shell/{{i}}
-    - template: jinja
-    - mode: 770
-    - user: "{{data.user}}"
-    - group: "root"
-    - defaults:
-        project: {{cfg.name}}
-    - require:
-      - cmd: {{cfg.name+'-setup-shell'}}
-      - cmd: {{cfg.name}}-stash
-{% endfor %}
-
-
-{{cfg.name}}-hooks:
-  cmd.run:
-    - name: "{{data.home}}/wrap_hooks.sh"
-    - cwd: {{data.home}}
-    - user: {{data.user}}
-    - require:
-      - cmd: {{cfg.name+'-setup-gitlab'}}
+      - mc_proxy: {{cfg.name}}-configs-after
