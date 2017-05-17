@@ -51,8 +51,10 @@ makina-projects.projectname:
     domain: "{fqdn}"
     root_password: "{{salt['mc_utils.generate_stored_password']('gitlabroot')}}"
     gitaly_enabled: true
-    gitaly_build_id: 1
+    gitaly_build_id: 2
     gitaly_log: "{dir}/log/gitaly.log"
+    gitaly_dir: "{home}/gitaly"
+    gitaly_url: "https://gitlab.com/gitlab-org/gitaly.git"
     nginx_containerregistry_upstreams: salt://makina-projects/{name}/files/nginx.containerregistry.upstreams.conf
     nginx_containerregistry_vhost: salt://makina-projects/{name}/files/nginx.containerregistry.content.conf
     container_registry_host: "registry.foo.com"
@@ -71,10 +73,11 @@ makina-projects.projectname:
     satellites_dir: "{home}/gitlab-satellites"
     user: "git"
     rversion: "2.3.3"
-    version: "9-0-stable"
-    pages_version: "v0.4.0"
+    version: "9-1-stable"
+    pages_version: "v0.4.1"
     workhorse_version: "v1.4.3"
-    shell_version: "5.0.0"
+    shell_version: "5.0.2"
+    gitaly_version: "v0.6.0"
     log_level: Logger::ERROR
     email_from: "git@{fqdn}"
     smtp_address: 127.0.0.1

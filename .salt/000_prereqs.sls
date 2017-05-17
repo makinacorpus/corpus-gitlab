@@ -16,6 +16,11 @@ include:
 {{users.create_user(data.user, {'home': data.home})}}
 {{rvm.install_ruby(data.rversion)}}
 
+prepreqs-{{cfg.name}}-ruby:
+  file.symlink:
+    - name: /usr/local/bin/ruby
+    - target: /usr/local/rvm/rubies/ruby-{{data.rversion}}/bin/ruby
+
 prepreqs-{{cfg.name}}:
   pkg.installed:
     - pkgs:

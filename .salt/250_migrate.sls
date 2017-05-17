@@ -9,6 +9,7 @@
 {% set tasks = [
  ('bundle install -j{5} --path {0}/gems '
   '--deployment --without development test {1} aws'),
+ 'rake db:migrate        RAILS_ENV=production',
  'rake assets:clean      RAILS_ENV=production',
  'rake assets:precompile RAILS_ENV=production',
  'rake cache:clear       RAILS_ENV=production',
@@ -18,6 +19,7 @@
  ('bundle install -j{5} --path {0}/gems '
   '--deployment --without development test {1} aws'),
  'yarn install',
+ 'rake db:migrate        RAILS_ENV=production',
  'rake assets:clean      RAILS_ENV=production',
  'rake assets:precompile RAILS_ENV=production',
  'rake webpack:compile RAILS_ENV=production',

@@ -74,6 +74,7 @@ include:
       - mc_proxy: {{cfg.name}}-shell-configs-post
 {% endfor %}
 
+{# useless, use /usr/local/bin/ruby
 {{cfg.name}}-hooks-wrapper:
   file.managed:
     - makedirs: true
@@ -106,4 +107,4 @@ include:
     - name: "{{data.home}}/wrap_hooks.sh"
     - require:
       - mc_proxy: {{cfg.name}}-shell-configs-post
-
+#}
