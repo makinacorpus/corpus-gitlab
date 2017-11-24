@@ -24,7 +24,7 @@ paths_regex = Regexp.union(paths_to_be_protected.map { |path| /\A#{Regexp.escape
 rack_attack_enabled = Gitlab.config.rack_attack.git_basic_auth['enabled']
 
 unless Rails.env.test? || !rack_attack_enabled
-  Rack::Attack.throttle('protected paths', limit: 10, period: 60.seconds) do |req|
+  Rack::Attack.throttle('protected paths', limit: 300, period: 120.seconds) do |req|
     if req.post? && req.path =~ paths_regex
       req.ip
     end
